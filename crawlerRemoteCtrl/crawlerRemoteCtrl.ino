@@ -102,28 +102,43 @@ void setVelocity(double s)
 void loop()
 {
   delay(500);
+
+  boolean rec = false;
   
   char c = XBee.read();
 
   if(c == 'F')
   {
     // Foward
+    rec = true;
+    
     setVelocity(0.3);
   }
   else if(c == 'B')
   {
     // Backward
+    rec = true;
+    
     setVelocity(-0.3);
   }
   else if(c == 'L')
   {
     // Left
+    rec = true;
+    
     steerLeft(0.8);
   }
   else if(c == 'R')
   {
     // Right
+    rec = true;
+    
     steerRight(0.8);      
+  }
+
+  if(rec = false)
+  {
+    setVelocity(0.0);
   }
 }
 
