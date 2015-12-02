@@ -194,6 +194,7 @@ void loop()
 
   // This is for the API mode
   // TODO: Receive ZB_RX, grab the payload and determine the operations
+  xbee.readPacket();
   char command = grabOperation();
   
   if(rec = false)
