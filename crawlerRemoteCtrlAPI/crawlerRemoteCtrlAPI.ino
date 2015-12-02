@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <XBee.h>
 #include <SoftwareSerial.h>
 #include "stdlib.h"
  
@@ -10,8 +11,93 @@ double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
 double wheelOffset = 0.0; // For Adjusting the wheel
 
-SoftwareSerial XBee(2, 3);
+XBee xbee = XBee();
+XBeeResponse response = XBeeResponse();
+
+// create reusable response objects for responses we expect to handle 
+ZBRxResponse rx = ZBRxResponse();
+
+SoftwareSerial xbeeSerial(2,3);
+
+char grabOperation()
+{
+  char result = 'N';
+  
+  if (xbee.getResponse().isAvailable()) 
+  {
+    // got something
+           
+    if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE) 
+    {
+      // got a zb rx packet
+        
+      // now fill our zb rx class
+      xbee.getResponse().getZBRxResponse(rx);
+      
+      Serial.println("Got an rx packet!");
+            
+      if (rx.getOption() == ZB_PACKET_ACKNOWLEDGED) 
+      {
+        // the sender got an ACK
+        Serial.println("packet acknowledged");
+      } 
+      else 
+      {
+        Serial.println("packet not acknowledged");
+      }
+        
+      Serial.print("checksum is ");
+      Serial.println(rx.getChecksum(), HEX);
+
+      Serial.print("packet length is ");
+      Serial.println(rx.getPacketLength(), DEC);
+        
+      for (int i = 0; i < rx.getDataLength(); i++) 
+      {
+        Serial.print("payload [");
+        Serial.print(i, DEC);
+        Serial.print("] is ");
+        Serial.println(rx.getData()[i], HEX);
+      }
+        
+      for (int i = 0; i < xbee.getResponse().getFrameDataLength(); i++) 
+      {
+        Serial.print("frame data [");
+        Serial.print(i, DEC);
+        Serial.print("] is ");
+
+        // Here is the data part loaded in server.js(from [11])
+        // Only For testing
+        if(i >= 11)
+        {
+          Serial.print("DATA [");
+          Serial.print((i-11), DEC);
+          Serial.print("]:");
+          Serial.println( (char)(xbee.getResponse().getFrameData()[i]));
+        }
+        else
+        {
+          Serial.println(xbee.getResponse().getFrameData()[i], HEX);
+        }
+
+        // Only the First Character is needed
+        if(xbee.getResponse().getFrameDataLength() > 11)
+        {
+          result = xbee.getResponse().getFrameData()[11];
+        }
+      }
  
+      Serial.println("");
+        
+      }
+    } 
+    else if (xbee.getResponse().isError()) 
+    {
+      Serial.print("error code:");
+      Serial.println(xbee.getResponse().getErrorCode());
+    }
+}
+
 void setup()
 {
   wheels.attach(8); // initialize wheel servo to Digital IO Pin #8
@@ -19,10 +105,11 @@ void setup()
   /*  If you're re-uploading code via USB while leaving the ESC powered on, 
    *  you don't need to re-calibrate each time, and you can comment this part out.
    */
-   Serial.begin(9600);
+  Serial.begin(9600);
 
-   XBee.begin(9600);
-   //Serial.begin(9600);
+  xbeeSerial.begin(9600);
+  xbee.setSerial(xbeeSerial);
+  Serial.println("Initializing Crawler...");
    
    calibrateESC();
 }
@@ -105,9 +192,10 @@ void loop()
 
   boolean rec = false;
 
-   // This is for the API mode
-   // TODO: Receive ZB_RX, grab the payload and determine the operations
- 
+  // This is for the API mode
+  // TODO: Receive ZB_RX, grab the payload and determine the operations
+  char command = grabOperation();
+  
   if(rec = false)
   {
     setVelocity(0.0);
