@@ -21,6 +21,8 @@ SoftwareSerial xbeeSerial(2,3);
 
 char grabOperation()
 {
+  xbee.readPacket();
+  
   char result = 'N';
   
   if (xbee.getResponse().isAvailable()) 
@@ -195,8 +197,32 @@ void loop()
 
   // This is for the API mode
   // TODO: Receive ZB_RX, grab the payload and determine the operations
-  xbee.readPacket();
   char command = grabOperation();
+
+  if(command = 'F')
+  {
+    setVelocity(0.4);
+
+    rec = true;
+  }
+  else if(command = 'B')
+  {
+    setVelocity(-0.2);
+
+    rec = true;
+  }
+  else if(command = 'L')
+  {
+    steerLeft(0.8);
+
+    rec = true;
+  }
+  else if(command = 'R')
+  {
+    steerRight(0.8);
+
+    rec = true;
+  }
   
   if(rec = false)
   {
