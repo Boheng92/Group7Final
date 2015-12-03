@@ -266,7 +266,7 @@ void loop()
   {
     Serial.println("= N =");
 
-    if(STOP = false)
+    if(STOP == false)
     {
       setVelocity(0.0);
 
