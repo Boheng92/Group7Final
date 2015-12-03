@@ -188,6 +188,7 @@ void setVelocity(double s)
  
 void loop()
 {
+  Serial.println("=======loop start=======");
   delay(500);
 
   boolean rec = false;
