@@ -221,13 +221,13 @@ void loop()
   {
     Serial.println("= Forward =");
     
-    setVelocity(0.4);
+    setVelocity(0.3);
 
     rec = true;
 
-    C = 'N';
+    //C = 'N';
 
-    STOP = false;
+    //STOP = false;
   }
   else if(C == 'B')
   {
@@ -237,9 +237,9 @@ void loop()
 
     rec = true;
 
-    C = 'N';
+    //C = 'N';
 
-    STOP = false;
+    //STOP = false;
   }
   else if(C == 'L')
   {
@@ -249,7 +249,7 @@ void loop()
 
     rec = true;
 
-    C = 'N';
+    //C = 'N';
   }
   else if(C == 'R')
   {
@@ -261,19 +261,15 @@ void loop()
 
     C = 'N';
   }
-  
-  if(rec == false)
+  else if(C == 'S')
   {
-    Serial.println("= N =");
+    Serial.println("= STOP =");
 
-    if(STOP == false)
-    {
-      setVelocity(0.0);
+    setVelocity(0.0);
 
-      STOP = true;
-    }
+    rec = true;
 
-    C = 'N';
+    //C = 'N';
   }
 }
 
