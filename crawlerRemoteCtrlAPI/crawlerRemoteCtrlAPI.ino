@@ -21,6 +21,8 @@ SoftwareSerial xbeeSerial(2,3);
 
 char C = 'N';
 
+double v = 0.0;
+
 boolean rec = false;
 
 boolean STOP = true;
@@ -193,6 +195,8 @@ void steerLeft(double d)
 
 void setVelocity(double s)
 {
+  v = s;
+  
   if( (s >= -1.0 ) && (s <= 1.0))
   {
     esc.write(90 - (s * maxSpeedOffset));
@@ -202,7 +206,7 @@ void setVelocity(double s)
 void loop()
 {
   //Serial.println("=======loop start=======");
-  delay(500);
+  delay(1000);
 
   rec = false;
 
@@ -261,12 +265,40 @@ void loop()
 
     C = 'N';
   }
+  else if(C == 'M')
+  {
+    Serial.println("= Right =");
+    
+    steerRight(0.0);
+
+    rec = true;
+
+    C = 'N';
+  }
   else if(C == 'S')
   {
     Serial.println("= STOP =");
 
-    setVelocity(0.0);
+    double s = 0.05;
 
+    if(v > 0)
+    {
+      while(v > 0)
+      {
+        setVelocity(v - s);
+  
+        delay(20);
+      }
+    }
+    else if(v < 0)
+    {
+      while(v < 0)
+      {
+        setVelocity(v + s);
+  
+        delay(50);
+      }
+    }
     rec = true;
 
     //C = 'N';
