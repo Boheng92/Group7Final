@@ -23,6 +23,8 @@ char C = 'N';
 
 boolean rec = false;
 
+boolean STOP = true;
+
 char grabOperation()
 {
   xbee.readPacket();
@@ -204,6 +206,8 @@ void loop()
 
   rec = false;
 
+  //STOP = true;
+
   // This is for the API mode
   // TODO: Receive ZB_RX, grab the payload and determine the operations
   C = grabOperation();
@@ -222,6 +226,8 @@ void loop()
     rec = true;
 
     C = 'N';
+
+    STOP = false;
   }
   else if(C == 'B')
   {
@@ -232,6 +238,8 @@ void loop()
     rec = true;
 
     C = 'N';
+
+    STOP = false;
   }
   else if(C == 'L')
   {
@@ -257,8 +265,13 @@ void loop()
   if(rec == false)
   {
     Serial.println("= N =");
-    
-    setVelocity(0.0);
+
+    if(STOP = false)
+    {
+      setVelocity(0.0);
+
+      STOP = true;
+    }
 
     C = 'N';
   }
