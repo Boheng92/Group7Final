@@ -19,6 +19,10 @@ ZBRxResponse rx = ZBRxResponse();
 
 SoftwareSerial xbeeSerial(2,3);
 
+char C = 'N';
+
+boolean rec = false;
+
 char grabOperation()
 {
   xbee.readPacket();
@@ -98,6 +102,11 @@ char grabOperation()
       Serial.print("error code:");
       Serial.println(xbee.getResponse().getErrorCode());
     }
+
+   Serial.print("Result: ");
+   Serial.println((char)result);
+
+    return result;
 }
 
 void setup()
@@ -190,43 +199,68 @@ void setVelocity(double s)
  
 void loop()
 {
-  Serial.println("=======loop start=======");
+  //Serial.println("=======loop start=======");
   delay(500);
 
-  boolean rec = false;
+  rec = false;
 
   // This is for the API mode
   // TODO: Receive ZB_RX, grab the payload and determine the operations
-  char command = grabOperation();
+  C = grabOperation();
 
-  if(command = 'F')
+  Serial.print("C: ");
+  Serial.println((char)C);
+
+  //Serial.println(command);
+
+  if(C == 'F')
   {
+    Serial.println("= Forward =");
+    
     setVelocity(0.4);
 
     rec = true;
+
+    C = 'N';
   }
-  else if(command = 'B')
+  else if(C == 'B')
   {
+    Serial.println("= Backward =");
+    
     setVelocity(-0.2);
 
     rec = true;
+
+    C = 'N';
   }
-  else if(command = 'L')
+  else if(C == 'L')
   {
+    Serial.println("= Left =");
+    
     steerLeft(0.8);
 
     rec = true;
+
+    C = 'N';
   }
-  else if(command = 'R')
+  else if(C == 'R')
   {
+    Serial.println("= Right =");
+    
     steerRight(0.8);
 
     rec = true;
+
+    C = 'N';
   }
   
-  if(rec = false)
+  if(rec == false)
   {
+    Serial.println("= N =");
+    
     setVelocity(0.0);
+
+    C = 'N';
   }
 }
 
