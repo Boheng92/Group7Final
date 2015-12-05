@@ -64,3 +64,9 @@ sp.on("open", function () {
   });
 });
 
+XBeeAPI.on("frame_object", function(frame) {
+  if (frame.type == 144){
+    console.log("Beacon ID: " + frame.data[1] + ", RSSI: " + (frame.data[0]));
+  }
+});
+
