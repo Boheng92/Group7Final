@@ -15,7 +15,7 @@ var MongoClient;
 var url;
 var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
-url = 'mongodb://localhost:27017/ch6Node';	//TO-DO change here the db name and collection's name
+url = 'mongodb://localhost:27017/ch5Node';	//TO-DO change here the db name and collection's name
 
 
 io.on('connection', function(socket){
@@ -41,7 +41,7 @@ io.on('connection', function(socket){
 
 		var message = {RSSI0: rssi0, RSSI1: rssi1, RSSI2: rssi2, X : x, Y : y};
 		console.log(" io.on Connected correctly to server");
-		var collection = db.collection('ch6Collection');//TO-DO change here the DB name and collection's name
+		var collection = db.collection('ch5Collection');//TO-DO change here the DB name and collection's name
 		
 		collection.insert(message, function (err, result) 
 			{
