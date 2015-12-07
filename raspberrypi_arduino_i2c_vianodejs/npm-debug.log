@@ -1,0 +1,22 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install' ]
+2 info using npm@2.14.9
+3 info using node@v0.12.8
+4 verbose node symlink /usr/bin/node
+5 verbose config Skipping project config: /home/pi/.npmrc. (matches userconfig)
+6 verbose readDependencies loading dependencies from /home/pi/package.json
+7 error install Couldn't read dependencies
+8 verbose stack Error: ENOENT, open '/home/pi/package.json'
+8 verbose stack     at Error (native)
+9 verbose cwd /home/pi/Group7/Group7Final/raspberrypi_arduino_i2c_vianodejs
+10 error Linux 4.1.13-v7+
+11 error argv "/usr/bin/node" "/usr/bin/npm" "install"
+12 error node v0.12.8
+13 error npm  v2.14.9
+14 error path /home/pi/package.json
+15 error code ENOPACKAGEJSON
+16 error errno -2
+17 error package.json ENOENT, open '/home/pi/package.json'
+17 error package.json This is most likely not a problem with npm itself.
+17 error package.json npm can't find a package.json file in your current directory.
+18 verbose exit [ -2, true ]
