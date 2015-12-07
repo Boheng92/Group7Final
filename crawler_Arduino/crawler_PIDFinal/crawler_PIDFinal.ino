@@ -6,6 +6,9 @@
 //SoftwareSerial xbee(2,3); // Rx, Tx
 
 
+boolean isCorner = true;
+int wallCount = 0;
+
 double Setpoint, Input, Output;
 double Kp=3.0, Ki=0.00001, Kd=1.2;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
@@ -49,21 +52,21 @@ void setup()
   myPID.SetMode(AUTOMATIC);
 
   
-  setVelocity(0.2);
+  setVelocity(0.3);
 }
 
 
 double getHeadDis() {
   double A1 = (double)analogRead(pin_head);
   double distance_head = exp(8.5841-log(A1));
-  Serial.println("head: "+ (String)distance_head);
+//  Serial.println("head: "+ (String)distance_head);
   return distance_head;
 }
 
 double getTailDis() {
   double A2 = (double)analogRead(pin_tail);
   double distance_tail = exp(8.5841-log(A2));
-  Serial.println("tail: "+ (String)distance_tail);
+//  Serial.println("tail: "+ (String)distance_tail);
   return distance_tail;
 }
 
@@ -81,15 +84,28 @@ boolean compareHeadTail(double head, double tail) {
     }
 }
 
-//boolean detectWall() {
-//    double distance = (double)analogRead(5) / 2;
-//    Serial.println(distance);
-//     if (distance < 15) {
-//      return true;  
-//    } else {
-//      return false;
-//    }
-//}
+boolean detectWall() {
+    long count = 5;
+    long sum = 0;
+    
+    for(int i = 0; i < count; i++){
+      long tempDistance = analogRead(3) / 2;
+//      Serial.println(tempDistance);
+      sum += tempDistance;
+      delay(10);
+    }
+
+    double distance = sum / count;
+    distance = distance * 2.54;
+   Serial.println(distance);
+     if (distance < 30) {
+      Serial.println("detect wall");
+      return true;  
+    } else {
+      Serial.println("========no wall===========");
+      return false;
+    }
+}
 
 
 double calcDistance(double head, double tail) {
@@ -98,7 +114,7 @@ double calcDistance(double head, double tail) {
 //  Serial.println("head: " + (String)distance_head);
 //  Serial.println("tail: " + (String)distance_tail);
   double distance = (car_length * car_length * distance_head * distance_head) / (car_length * car_length + (distance_head - distance_tail) * (distance_head - distance_tail));
-  Serial.println("distance:  " + (String)distance);
+//  Serial.println("distance:  " + (String)distance);
   return distance;
 }
 
@@ -113,6 +129,22 @@ void calibrateESC(){
     esc.write(90); // reset the ESC to neutral (non-moving) value
 }
 
+void turnLeft(){
+  Serial.println("truning left");
+    setVelocity(0.0);
+    delay(1000);
+    steerRight(0.1);
+    setVelocity(-0.3);
+    delay(4000);
+    setVelocity(0.0);
+    delay(1000);
+
+    steerLeft(1.0);  
+    setVelocity(0.3); 
+    delay(4000);  
+    steerRight(0.1);
+}
+
 void steerLeft(double d)
 { 
 //  Serial.write("Steer Left:");
@@ -122,7 +154,7 @@ void steerLeft(double d)
   {
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
-    wheels.write(70 + temp);
+    wheels.write(90 + temp);
   }
 }
 
@@ -136,7 +168,7 @@ void steerRight(double d)
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
 //    Serial.println("temp :  "+ (String)temp);
     
-    wheels.write(70 - temp);
+    wheels.write(90 - temp);
   }
 }
 /*
@@ -185,30 +217,34 @@ void loop()
 //      }
 //  }
 //delay(100);
-  int count = 0;
-  double head_dis = getHeadDis();
-  double tail_dis = getTailDis();
-  if (head_dis < 80 && tail_dis < 80) {
-    Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
-    Input = calcDistance(getHeadDis(), getTailDis());
-    myPID.Compute();
-    if (Output < 0) {
-       steerRight(-Output);
-    } else {
-       steerLeft(Output);
+ 
+ if (detectWall()) {
+//    Serial.println("hehe");
+    wallCount++;
+    Serial.println(wallCount);
+    if (wallCount == 3) {
+//      Serial.println("haha");
+      turnLeft();
+      wallCount = 0;
     }
-  } else {
-    steerRight(0.1);  
+  } else{
+    wallCount = 0;  
+    double head_dis = getHeadDis();
+    double tail_dis = getTailDis();
+    if ( head_dis < 80 && tail_dis < 80) {
+  //      Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+        Input = calcDistance(getHeadDis(), getTailDis());
+        Serial.println("run once");
+        myPID.Compute();
+        if (Output < 0) {
+           steerRight(-Output);
+        } else {
+           steerLeft(Output);
+        }
+    } else {
+        steerRight(0.1);  
+    }
   }
-//  if (detectWall()) {
-//    count++;
-//    if (count == 3) {
-//      setVelocity(0.0);
-//    }
-//  } else{
-//    count = 0;  
-//  }
-  delay(50);
 }
 
 

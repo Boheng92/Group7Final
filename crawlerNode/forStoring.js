@@ -15,7 +15,7 @@ var MongoClient;
 var url;
 var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
-url = 'mongodb://localhost:27017/ch5Node';	//TO-DO change here the db name and collection's name
+url = 'mongodb://localhost:27017/ch5Node';	//注意这里的DB和collection名字改了，DB叫做ch5Node，collection叫做ch5Collection。
 
 
 io.on('connection', function(socket){
@@ -33,15 +33,16 @@ io.on('connection', function(socket){
 	var rssi0 = parseFloat(msg.substring(1,4));
 	var rssi1 = parseFloat(msg.substring(5,8));
 	var rssi2 = parseFloat(msg.substring(9,12));
-	var x = parseFloat(msg.substring(13,18));
-	var y = parseFloat(msg.substring(19,24));
+	var rssi3 = parseFloat(msg.substring(13,16));
+	var x = parseFloat(msg.substring(18,23));
+	var y = parseFloat(msg.substring(24,29));
 	
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
 
-		var message = {RSSI0: rssi0, RSSI1: rssi1, RSSI2: rssi2, X : x, Y : y};
+		var message = {RSSI0: rssi0, RSSI1: rssi1, RSSI2: rssi2, RSSI3: rssi3, X : x, Y : y};
 		console.log(" io.on Connected correctly to server");
-		var collection = db.collection('ch5Collection');//TO-DO change here the DB name and collection's name
+		var collection = db.collection('ch5Collection');
 		
 		collection.insert(message, function (err, result) 
 			{
@@ -68,6 +69,10 @@ http.listen(3000, function(){
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+/*Make our db accessible to the router
+app.use(funtion(req,res,next){
+	req.db = db;
+	*/
 
 var routes = require('./routes/index');
 app.use('/', routes);
@@ -109,6 +114,11 @@ sp.on("open", function () {
   setInterval(requestRSSI, sampleDelay);
   
 });
+
+//Variables for find query.
+var update = [0, 0, 0, 0];
+var rssis = new Array([4]);
+
 
 XBeeAPI.on("frame_object", function(frame) {
   if (frame.type == 144){

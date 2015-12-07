@@ -9,14 +9,14 @@
 <p id = "RSSI0">0</p>
 <p id = "RSSI1">1</p>
 <p id = "RSSI2">2</p>
-<!--<p id = "RSSI3">3</p> -->
+<p id = "RSSI3">3</p>
 
 <button onclick="myFunction()">Upload</button>
 
 <button onclick="updateRSSI0()">0</button>
 <button onclick="updateRSSI1()">1</button>
 <button onclick="updateRSSI2()">2</button>
-<!-- <button onclick="updateRSSI3()">3</button> -->
+<button onclick="updateRSSI3()">3</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
@@ -27,7 +27,7 @@ var socket = io();
 var rssi0 = 0;
 var rssi1 = 1;
 var rssi2 = 2;
-//var rssi3 = 3;
+var rssi3 = 3;
 
 socket.on('rssi message', function(msg){
     var id = msg.substring(0, 1);
@@ -41,18 +41,18 @@ socket.on('rssi message', function(msg){
 	else if(id == "1")
 	{
 		rssi1 = value;
-		document.getElementById("RSSI0").innerHTML = rssi1.toString();
+		document.getElementById("RSSI1").innerHTML = rssi1.toString();
 	}
 	else if(id == "2")
 	{
 		rssi2 = value;
-		document.getElementById("RSSI0").innerHTML = rssi2.toString();
+		document.getElementById("RSSI2").innerHTML = rssi2.toString();
 	}
-	/*else if(id == "3")
+	else if(id == "3")
 	{
 		rssi3 = value;
-		document.getElementById("RSSI0").innerHTML = rssi3.toString();
-	}*/
+		document.getElementById("RSSI3").innerHTML = rssi3.toString();
+	}
 	
   });
 
@@ -65,7 +65,7 @@ function myFunction() {
     var v0 = rssi0.toString();
     var v1 = rssi1.toString();
     var v2 = rssi2.toString();
-    //var v3 = rssi3.toString();
+    var v3 = rssi3.toString();
 
     //
     while(x.length < 5)
@@ -94,16 +94,16 @@ function myFunction() {
         v2 = "0" + v2;
     }
 
-    /*while(v3.length < 3)
+    while(v3.length < 3)
     {
         v3 = "0" + v3;
-    }*/
+    }
 
 
     var msg = "[" + v0 + ","
                   + v1 + ","
                   + v2 + ","
-                  //+ v3 + "]"
+                  + v3 + "]"
                   + "{" + x + "," + y + "}";
     
     socket.emit('DB message', msg);                    
@@ -127,10 +127,10 @@ function updateRSSI2() {
     document.getElementById("RSSI2").innerHTML = rssi2.toString();
 }
 
-/*function updateRSSI3() {
+function updateRSSI3() {
     rssi3 = Math.random();
     document.getElementById("RSSI3").innerHTML = rssi3.toString();
-}*/
+}
 </script>
 
 </body>
