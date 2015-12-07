@@ -15,7 +15,7 @@ var MongoClient;
 var url;
 var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
-url = 'mongodb://localhost:27017/ch6Node';	//注意这里的DB和collection名字改了，DB叫做ch5Node，collection叫做ch5Collection。
+url = 'mongodb://localhost:27017/ch5Node';	//注意这里的DB和collection名字改了，DB叫做ch5Node，collection叫做ch5Collection。
 
 
 io.on('connection', function(socket){
@@ -42,7 +42,7 @@ io.on('connection', function(socket){
 
 		var message = {RSSI0: rssi0, RSSI1: rssi1, RSSI2: rssi2, RSSI3: rssi3, X : x, Y : y};
 		console.log(" io.on Connected correctly to server");
-		var collection = db.collection('ch6Collection');
+		var collection = db.collection('ch5Collection');
 		
 		collection.insert(message, function (err, result) 
 			{

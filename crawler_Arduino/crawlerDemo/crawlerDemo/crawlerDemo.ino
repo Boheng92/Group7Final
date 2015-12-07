@@ -85,20 +85,20 @@ boolean compareHeadTail(double head, double tail) {
 }
 
 boolean detectWall() {
-    long count = 5;
-    long sum = 0;
+//    long count = 5;
+//    long sum = 0;
     
-    for(int i = 0; i < count; i++){
+//    for(int i = 0; i < count; i++){
       long tempDistance = analogRead(3) / 2;
 //      Serial.println(tempDistance);
-      sum += tempDistance;
-      delay(10);
-    }
+//      sum += tempDistance;
+//      delay(10);
+//    }
 
-    double distance = sum / count;
-    distance = distance * 2.54;
-   Serial.println(distance);
-     if (distance < 30) {
+//    double distance = sum / count;
+    tempDistance = tempDistance * 2.54;
+   Serial.println(tempDistance);
+     if (tempDistance < 20) {
       Serial.println("detect wall");
       return true;  
     } else {
@@ -129,19 +129,20 @@ void calibrateESC(){
     esc.write(90); // reset the ESC to neutral (non-moving) value
 }
 
-void turnLeft(){
+void handleWall(){
   Serial.println("truning left");
     setVelocity(0.0);
     delay(1000);
-    steerRight(0.1);
+    steerLeft(0.5);
     setVelocity(-0.3);
-    delay(4000);
+    delay(2000);
     setVelocity(0.0);
-    delay(1000);
-    steerLeft(1.0);  
-    setVelocity(0.3); 
-    delay(4000);  
     steerRight(0.1);
+    delay(1000);
+//    steerLeft(1.0);  
+    setVelocity(0.3); 
+//    delay(4000);  
+//    steerRight(0.1);
 }
 
 void steerLeft(double d)
@@ -153,7 +154,7 @@ void steerLeft(double d)
   {
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
-    wheels.write(90 + temp);
+    wheels.write(70 + temp);
   }
 }
 
@@ -167,7 +168,7 @@ void steerRight(double d)
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
 //    Serial.println("temp :  "+ (String)temp);
     
-    wheels.write(90 - temp);
+    wheels.write(70 - temp);
   }
 }
 /*
@@ -223,14 +224,15 @@ void loop()
     Serial.println(wallCount);
     if (wallCount == 3) {
 //      Serial.println("haha");
-      turnLeft();
       wallCount = 0;
+      handleWall();
+     
     }
   } else{
     wallCount = 0;  
     double head_dis = getHeadDis();
     double tail_dis = getTailDis();
-    if ( head_dis < 80 && tail_dis < 80) {
+    if ( head_dis < 50 && tail_dis < 50) {
   //      Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
         Input = calcDistance(getHeadDis(), getTailDis());
         Serial.println("run once");
@@ -241,7 +243,7 @@ void loop()
            steerLeft(Output);
         }
     } else {
-        steerRight(0.1);  
+        steerRight(0.9);  
     }
   }
 }

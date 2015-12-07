@@ -8,6 +8,7 @@ var C = xbee_api.constants;
 var sampleDelay = 3000;
 var portName = process.argv[2];
 var sp;
+var path = require('path');
 
 //for MonogoDB
 var MongoClient;
@@ -79,8 +80,8 @@ sp.on("open", function () {
 });
 
 //Variables for find query.
-var update = [0, 0, 0];
-var rssis = new Array(0, 0, 0);
+var update = [0, 1, 1, 1];
+var rssis = new Array(0, 0, 0, 0);
 
 var res_X = -999.9;
 var res_Y = -999.9;
@@ -99,21 +100,16 @@ XBeeAPI.on("frame_object", function(frame) {
 
 
 	update[tempID] = 1;
+	//console.log(update[0]);
 	rssis[tempID] = tempRSSI;
 	
-	if( ( update[0] == 1 ) && ( update[1] == 1) && ( update[2] == 1)){
+	if( ( update[0] == 1 ) && ( update[1] == 1) && ( update[2] == 1) && ( update[3] == 1) ){
 		
 		MongoClient.connect(url, function(err, db) {
 			assert.equal(null, err);
 			
-			var collection = db.collection('ch5Collection');//To-DO: change here the collection's name
-			var cursor =collection.find(
-				{ $and:[
-					{"RSSI0": { $lt: (rssis[0] + range), $gt: (rssis[0] - range)}}, 
-					{"RSSI1" : {$lt: (rssis[1] + range), $gt: (rssis[1] - range)}},
-					{"RSSI2": { $lt: (rssis[2] + range), $gt: (rssis[2] - range)}}
-				]}
-			);				
+			var collection = db.collection('ch5Collection');
+			var cursor =collection.find({ $and: [{"RSSI0": { $lt: (rssis[0] + range), $gt: (rssis[0] - range)}}, {"RSSI1" : {$lt: (rssis[1] + range), $gt: (rssis[1] - range)}},{"RSSI2": { $lt: (rssis[2] + range), $gt: (rssis[2] - range)}},{"RSSI3": { $lt: (rssis[3] + range), $gt: (rssis[3] - range)}}]});				
 			cursor.sort({X: -1});			
 			cursor.each(function(err, doc) 
 			{					
@@ -128,10 +124,14 @@ XBeeAPI.on("frame_object", function(frame) {
 					tempRSSI[0] = doc.RSSI0;
 					tempRSSI[1] = doc.RSSI1;
 					tempRSSI[2] = doc.RSSI2;
-										
+					tempRSSI[3] = doc.RSSI3;
+					
+					
 					var tempDist = (rssis[0] - tempRSSI[0])*(rssis[0] - tempRSSI[0]) + 
 						(rssis[1] - tempRSSI[1])*(rssis[1] - tempRSSI[1]) + 
-						(rssis[2] - tempRSSI[2])*(rssis[2] - tempRSSI[2]);
+						(rssis[2] - tempRSSI[2])*(rssis[2] - tempRSSI[2]) + 
+						(rssis[3] - tempRSSI[3])*(rssis[3] - tempRSSI[3]);
+					
 	
 					if(tempDist < minDist)
 					{
