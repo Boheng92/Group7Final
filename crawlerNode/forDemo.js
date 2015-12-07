@@ -14,7 +14,7 @@ var MongoClient;
 var url;
 var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
-url = 'mongodb://localhost:27017/ch6Node';
+url = 'mongodb://localhost:27017/ch5Node';
 
 
 io.on('connection', function(socket){
@@ -106,7 +106,7 @@ XBeeAPI.on("frame_object", function(frame) {
 		MongoClient.connect(url, function(err, db) {
 			assert.equal(null, err);
 			
-			var collection = db.collection('ch6Collection');//To-DO: change here the collection's name
+			var collection = db.collection('ch5Collection');//To-DO: change here the collection's name
 			var cursor =collection.find(
 				{ $and:[
 					{"RSSI0": { $lt: (rssis[0] + range), $gt: (rssis[0] - range)}}, 
