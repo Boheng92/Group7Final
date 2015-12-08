@@ -85,20 +85,20 @@ boolean compareHeadTail(double head, double tail) {
 }
 
 boolean detectWall() {
-//    long count = 5;
-//    long sum = 0;
+    long count = 3;
+    long sum = 0;
     
-//    for(int i = 0; i < count; i++){
+    for(int i = 0; i < count; i++){
       long tempDistance = analogRead(3) / 2;
-//      Serial.println(tempDistance);
-//      sum += tempDistance;
-//      delay(10);
-//    }
+      Serial.println(tempDistance);
+      sum += tempDistance;
+      delay(10);
+    }
 
-//    double distance = sum / count;
-    tempDistance = tempDistance * 2.54;
-   Serial.println(tempDistance);
-     if (tempDistance < 20) {
+    double distance = sum / count;
+    distance = distance * 2.54;
+   Serial.println(distance);
+     if (distance < 40) {
       Serial.println("detect wall");
       return true;  
     } else {
@@ -133,12 +133,13 @@ void handleWall(){
   Serial.println("truning left");
     setVelocity(0.0);
     delay(1000);
-    steerLeft(0.5);
+    steerLeft(0.9);
     setVelocity(-0.3);
     delay(2000);
     setVelocity(0.0);
-    steerRight(0.1);
-    delay(1000);
+    steerRight(0.9);
+    setVelocity(0.3);
+    delay(2000);
 //    steerLeft(1.0);  
     setVelocity(0.3); 
 //    delay(4000);  
@@ -217,13 +218,13 @@ void loop()
 //      }
 //  }
 //delay(100);
- 
- if (detectWall()) {
-//    Serial.println("hehe");
+ boolean isWall = detectWall();
+ if (isWall) {
+    Serial.println("hehe");
     wallCount++;
     Serial.println(wallCount);
     if (wallCount == 3) {
-//      Serial.println("haha");
+      Serial.println("haha");
       wallCount = 0;
       handleWall();
      
@@ -232,8 +233,9 @@ void loop()
     wallCount = 0;  
     double head_dis = getHeadDis();
     double tail_dis = getTailDis();
-    if ( head_dis < 50 && tail_dis < 50) {
-  //      Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+    if ( head_dis < 100 && tail_dis < 100) {
+        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+        //delay(5000);
         Input = calcDistance(getHeadDis(), getTailDis());
         Serial.println("run once");
         myPID.Compute();
@@ -243,10 +245,14 @@ void loop()
            steerLeft(Output);
         }
     } else {
+        Serial.println("turning right!==============");
+        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
         steerRight(0.9);  
+        delay(2000);
     }
   }
 }
+
 
 
 

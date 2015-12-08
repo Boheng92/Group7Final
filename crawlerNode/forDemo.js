@@ -154,6 +154,7 @@ XBeeAPI.on("frame_object", function(frame) {
 					io.emit("Coordinate Message", msg);
 				}
 			
+				db.close();
 			});			
 		});	
 	}
