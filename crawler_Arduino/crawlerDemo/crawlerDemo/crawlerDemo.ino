@@ -5,8 +5,7 @@
 //create an xBee object
 //SoftwareSerial xbee(2,3); // Rx, Tx
 
-
-boolean isCorner = true;
+int turnCount = 3;
 int wallCount = 0;
 
 double Setpoint, Input, Output;
@@ -52,7 +51,7 @@ void setup()
   myPID.SetMode(AUTOMATIC);
 
   
-  setVelocity(0.3);
+  setVelocity(0.5);
 }
 
 
@@ -69,36 +68,19 @@ double getTailDis() {
 //  Serial.println("tail: "+ (String)distance_tail);
   return distance_tail;
 }
-
-boolean compareHeadTail(double head, double tail) {
-    if (abs(head-tail) < 2) {
-      if (head < 0.7 * threshHoldDistance || head > 1.3 * threshHoldDistance) {
-        return false;
-      } 
-      else {
-        return true;
-      }
-    } 
-    else {
-      return false;
-    }
-}
-
-boolean detectWall() {
-    long count = 3;
-    long sum = 0;
-    
+boolean detectWall(int range) {
+    long count = 2;
+    long sum = 0;   
     for(int i = 0; i < count; i++){
       long tempDistance = analogRead(3) / 2;
       Serial.println(tempDistance);
       sum += tempDistance;
       delay(10);
     }
-
     double distance = sum / count;
     distance = distance * 2.54;
    Serial.println(distance);
-     if (distance < 40) {
+     if ((int)distance < range) {
       Serial.println("detect wall");
       return true;  
     } else {
@@ -141,9 +123,9 @@ void handleWall(){
     setVelocity(0.3);
     delay(2000);
 //    steerLeft(1.0);  
-    setVelocity(0.3); 
+//    setVelocity(0.3); 
 //    delay(4000);  
-//    steerRight(0.1);
+    steerRight(0.0);
 }
 
 void steerLeft(double d)
@@ -218,12 +200,12 @@ void loop()
 //      }
 //  }
 //delay(100);
- boolean isWall = detectWall();
+ boolean isWall = detectWall(15);
  if (isWall) {
     Serial.println("hehe");
     wallCount++;
     Serial.println(wallCount);
-    if (wallCount == 3) {
+    if (wallCount == 2) {
       Serial.println("haha");
       wallCount = 0;
       handleWall();
@@ -233,7 +215,7 @@ void loop()
     wallCount = 0;  
     double head_dis = getHeadDis();
     double tail_dis = getTailDis();
-    if ( head_dis < 100 && tail_dis < 100) {
+    if ( head_dis < 500 && tail_dis < 500) {
         Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
         //delay(5000);
         Input = calcDistance(getHeadDis(), getTailDis());
@@ -244,15 +226,31 @@ void loop()
         } else {
            steerLeft(Output);
         }
-    } else {
-        Serial.println("turning right!==============");
-        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
-        steerRight(0.9);  
-        delay(2000);
+    }
+    else {
+        int temp = turnCount%4;
+        if(temp == 0){
+          Serial.println("sepcial turning right!==============");
+          Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+          wheels.write(5);  
+          delay(2500);
+          wheels.write(50);
+          delay(1500);
+          wheels.write(90);
+          delay(4000);
+          turnCount++;
+        }else{
+          Serial.println("normal turning right!==============");
+          Serial.println((String)temp);
+          wheels.write(5);  
+          delay(2500);
+          wheels.write(50);
+          delay(500);
+          wheels.write(90);
+          delay(500);
+          turnCount++;
+        }
     }
   }
 }
-
-
-
 
