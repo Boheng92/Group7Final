@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <Servo.h>
 #include <PID_v1.h>
 #include <SoftwareSerial.h>
@@ -8,7 +7,6 @@
 
 int turnCount = 3;
 int wallCount = 0;
-boolean isSpecial;
 
 double Setpoint, Input, Output;
 double Kp=3.0, Ki=0.00001, Kd=1.2;
@@ -26,8 +24,8 @@ double wheelOffset = 0.0; // For Adjusting the wheel
 double threshHoldDistance = 27.5 * 27.5;
 //double threshHoldDistance = 69.85 * 69.85;
 
-int pin_head = 1;
-int pin_tail = 2;
+int pin_head = 4;
+int pin_tail = 5;
 
 double steerAngle = 0.0;
 //double car_length = 13;         //inches
@@ -38,10 +36,6 @@ void setup()
 {
 //  xbee.begin(9600);
   Serial.begin(9600);
-
-  Wire.begin(4);                // join i2c bus with address #4
-  Wire.onReceive(receiveEvent); // register event
-  
   wheels.attach(8); // initialize wheel servo to Digital IO Pin #8
   esc.attach(9); // initialize ESC to Digital IO Pin #9
   /*  If you're re-uploading code via USB while leaving the ESC powered on, 
@@ -160,19 +154,20 @@ void setVelocity(double s)
 }
 
 
-void receiveEvent(int howMany)
-{
-  int x = Wire.read();    // receive byte as an integer
-  if(x == 3){
-    isSpecial = true;
-    Serial.println("setting the flag ffffffffffffffffffffffffffffffffff");
-  }
-}
-
-
-
 void loop()
 {
+//  boolean isWall = detectWall(15);
+//  if (isWall) {
+//    Serial.println("hehe");
+//    wallCount++;
+//    Serial.println(wallCount);
+//    if (wallCount == 2) {
+//      Serial.println("haha");
+//      wallCount = 0;
+//      handleWall();    
+//    }
+//  } else{
+//    wallCount = 0;  
     double head_dis = getHeadDis();
     double tail_dis = getTailDis();
     if ( head_dis < 500 && tail_dis < 500) {
@@ -189,7 +184,7 @@ void loop()
     }
     else {
         int temp = turnCount%4;
-        if(isSpecial){
+        if(temp == 0){
           Serial.println("sepcial turning right!==============");
           Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
           wheels.write(5);  
@@ -204,8 +199,7 @@ void loop()
           delay(500);
           wheels.write(90);
           delay(2000);
-          isSpecial = false;
-//          turnCount++;
+          turnCount++;
         }else{
           Serial.println("normal turning right!==============");
           Serial.println((String)temp);
@@ -217,7 +211,7 @@ void loop()
           delay(500);
           wheels.write(90);
           delay(500);
-//          turnCount++;
+          turnCount++;
         }
     }
 }
