@@ -3,6 +3,10 @@
 #include <PID_v1.h>
 #include <SoftwareSerial.h>
 
+#define STOP 0
+#define AUTO 1
+#define MANU 2
+
 boolean isAuto;
 boolean isSpecial;
 
@@ -30,6 +34,10 @@ double steerAngle = 0.0;
 double car_length = 35.5;       //cm 
 //double wheelStartUpOffset = 0.0; // For Adjusting the steering
 
+int STAT;
+
+double currentSpeed;
+
 void setup()
 { 
   //for the wire connection
@@ -51,8 +59,10 @@ void setup()
   myPID.SetOutputLimits(-0.5,0.5);
   myPID.SetMode(AUTOMATIC);
 
-  
-  setVelocity(0.5);
+  STAT = STOP;
+
+  currentSpeed = 0.0;
+  //setVelocity(0.5);
 }
 
 
@@ -112,6 +122,7 @@ void steerRight(double d)
 void setVelocity(double s)
 {
   if( (s >= -1.0 ) && (s <= 1.0)){
+    currentSpeed = (90 - (s * maxSpeedOffset));
     esc.write(90 - (s * maxSpeedOffset));
   }
 }
@@ -120,60 +131,124 @@ void setVelocity(double s)
 void receiveEvent(int howMany)
 // Handle S, A, N, R, L, M, F, B, X
 {
+  double temp = 0.0;
+  
   char c = Wire.read();// receive byte as an integer
-  if(c == X){
+  if(c == 'X'){
     isSpecial = true;
   }
+
+  else if(c == 'S' && STAT != STOP)
+  {
+    temp = (0.0 - currentSpeed)/10.0;
+    
+    while(currentSpeed != 0.0)
+    {
+      setVelocity(currentSpeed + temp);
+
+      delay(20);
+    }
+    
+    STAT = STOP;
+  }
+
+  else if(c == 'A' && STAT != AUTO)
+  {
+    STAT = AUTO;
+
+    setVelocity(0.5);
+  }
+
+  else if(c == 'N' && STAT != MANU)
+  {
+    STAT = MANU;  
+  }
+
+  else if(c == 'F' && STAT == MANU)
+  {
+    // Forward
+    setVelocity(0.3);  
+  }
+
+  else if(c == 'B' && STAT == MANU)
+  {
+    // Backward
+    setVelocity(-0.2);
+  }
+
+  else if(c == 'L' && STAT == MANU)
+  {
+    steerLeft(0.8);
+  }
+
+  else if(c == 'R' && STAT == MANU)
+  {
+    steerRight(0.8);
+  }
+
+  else if(c == 'M' && STAT == MANU)
+  {
+    steerLeft(0.0);
+  }
+  
 }
 
 
 
 void loop()
 {
-    double head_dis = getHeadDis();
-    double tail_dis = getTailDis();
-    if ( head_dis < 500 && tail_dis < 500) {
-//        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
-        //delay(5000);
-        Input = calcDistance(getHeadDis(), getTailDis());
-        Serial.println("run once");
-        myPID.Compute();
-        if (Output < 0) {
-           steerRight(-Output);
-        } else {
-           steerLeft(Output);
-        }
-    }
-    else {
-        int temp = turnCount%4;
-        if(isSpecial){
-//          Serial.println("sepcial turning right!==============");
-//          Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
-          wheels.write(5);  
-          delay(2500);
-          wheels.write(50);
-          delay(1000);
-          wheels.write(120);
-          delay(1000);
-          wheels.write(90);
-          delay(1500);
-          wheels.write(70);
-          delay(500);
-          wheels.write(90);
-          delay(2000);
-          isSpecial = false;
-        }else{
-//          Serial.println("normal turning right!==============");
-//          Serial.println((String)temp);
-          wheels.write(5);  
-          delay(2500);
-          wheels.write(50);
-          delay(500);
-          wheels.write(120);
-          delay(500);
-          wheels.write(90);
-          delay(500);
-        }
-    }
+  if(STAT == AUTO)
+  {
+      if(currentSpeed != 0.5)
+      {
+        setVelocity(0.5);
+      }
+      
+      double head_dis = getHeadDis();
+      double tail_dis = getTailDis();
+      if ( head_dis < 500 && tail_dis < 500) {
+  //        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+          //delay(5000);
+          Input = calcDistance(getHeadDis(), getTailDis());
+          Serial.println("run once");
+          myPID.Compute();
+          if (Output < 0) {
+             steerRight(-Output);
+          } else {
+             steerLeft(Output);
+          }
+      }
+      else {
+          //int temp = turnCount%4;
+          if(isSpecial){
+  //          Serial.println("sepcial turning right!==============");
+  //          Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+            wheels.write(5);  
+            delay(2500);
+            wheels.write(50);
+            delay(1000);
+            wheels.write(120);
+            delay(1000);
+            wheels.write(90);
+            delay(1500);
+            wheels.write(70);
+            delay(500);
+            wheels.write(90);
+            delay(2000);
+            isSpecial = false;
+          }else{
+  //          Serial.println("normal turning right!==============");
+  //          Serial.println((String)temp);
+            wheels.write(5);  
+            delay(2500);
+            wheels.write(50);
+            delay(500);
+            wheels.write(120);
+            delay(500);
+            wheels.write(90);
+            delay(500);
+          }
+      }
+   }
 }
 
