@@ -15,7 +15,7 @@ var MongoClient;
 var url;
 var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
-url = 'mongodb://localhost:27017/ch5Node';
+url = 'mongodb://localhost:27017/ch6Node';
 
 
 io.on('connection', function(socket){
@@ -80,7 +80,7 @@ sp.on("open", function () {
 });
 
 //Variables for find query.
-var update = [0, 1, 1, 1];
+var update = [0, 0, 0, 0];
 var rssis = new Array(0, 0, 0, 0);
 
 var res_X = -999.9;
@@ -105,11 +105,18 @@ XBeeAPI.on("frame_object", function(frame) {
 	
 	if( ( update[0] == 1 ) && ( update[1] == 1) && ( update[2] == 1) && ( update[3] == 1) ){
 		
+		for(int i = 0; i < 4; i++){
+			update[i] = 0;
+		}
 		MongoClient.connect(url, function(err, db) {
 			assert.equal(null, err);
 			
-			var collection = db.collection('ch5Collection');
-			var cursor =collection.find({ $and: [{"RSSI0": { $lt: (rssis[0] + range), $gt: (rssis[0] - range)}}, {"RSSI1" : {$lt: (rssis[1] + range), $gt: (rssis[1] - range)}},{"RSSI2": { $lt: (rssis[2] + range), $gt: (rssis[2] - range)}},{"RSSI3": { $lt: (rssis[3] + range), $gt: (rssis[3] - range)}}]});				
+			var collection = db.collection('ch6Collection');
+			var cursor =collection.find({ $and: [{"RSSI0": { $lt: (rssis[0] + range), 
+				$gt: (rssis[0] - range)}}, {"RSSI1" : {$lt: (rssis[1] + range), 
+				$gt: (rssis[1] - range)}},{"RSSI2": { $lt: (rssis[2] + range), 
+				$gt: (rssis[2] - range)}},{"RSSI3": { $lt: (rssis[3] + range), 
+				$gt: (rssis[3] - range)}}]});				
 			cursor.sort({X: -1});			
 			cursor.each(function(err, doc) 
 			{					
