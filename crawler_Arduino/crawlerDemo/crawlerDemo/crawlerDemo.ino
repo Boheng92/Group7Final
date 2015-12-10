@@ -35,12 +35,11 @@ double car_length = 35.5;       //cm
 //double wheelStartUpOffset = 0.0; // For Adjusting the steering
 
 void setup()
-{
+{ Wire.begin(4);                // join i2c bus with address #4
+  Wire.onReceive(receiveEvent); // register ev
 //  xbee.begin(9600);
   Serial.begin(9600);
 
-  Wire.begin(4);                // join i2c bus with address #4
-  Wire.onReceive(receiveEvent); // register event
   
   wheels.attach(8); // initialize wheel servo to Digital IO Pin #8
   esc.attach(9); // initialize ESC to Digital IO Pin #9
@@ -162,7 +161,9 @@ void setVelocity(double s)
 
 void receiveEvent(int howMany)
 {
-  int x = Wire.read();    // receive byte as an integer
+  Serial.println("here");
+  int x = Wire.read();// receive byte as an integer
+  Serial.println(x);
   if(x == 3){
     isSpecial = true;
     Serial.println("setting the flag ffffffffffffffffffffffffffffffffff");
