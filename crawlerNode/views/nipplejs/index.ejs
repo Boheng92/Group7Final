@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Group7 </title>
+  </head>
+  <body>
+	<h1><center>Group 7<center></h1>
+	
+	<style>
+	#test {
+     width: 500px;
+     height:700px;
+     margin: 0px auto;
+	 left: 450px;
+    }
+	</style>
+	
+	<div id="test" style="float: left; height: 620px; width: 250px; background-color: grey" >
+	<h2 style="color: White"><center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;Indoor Positioning</center></h2>
+		<canvas id="main" style="margin-left: 45px;  margin-top: 5px" height="550px" width="200px"></canvas>	
+	</div>
+   <div id="camera" style="height: 620px; width: 620px; background-color: grey; margin-left: 290px; position: absolute">
+	<h2 style="color: White"><br><center>Live Video</center></h2>
+
+    <object type="text/html" data="http://nirmit2810.ddns.net:8081/" width="550px" height="350px" style="overflow:auto;border:5px ridge black; margin-left: 25px">
+    </object>
+	<div id="button ">
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="auto" onclick="auto()" > AUTO </button>
+	<button id="manual" onclick="manual()"> MANUAL </button>
+	<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="stop" onclick="stop()" > STOP </button>
+	</div>
+	</div>
+	<div id="remote" style=" width: 300px; height: 620px; background-color : grey; position: absolute; margin-left: 950px"> 
+	<h2 style="color: White"><br><center>Remote Control</center></h2>
+	
+	</div>
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+	  var socket = io();
+
+	 socket.on('Coordinate Message', function(msg){
+	var X = parseFloat(msg.substring(1, 3));
+	var Y = parseFloat(msg.substring(5, 7));
+	var x_Position_of_arduino=X;
+	var y_Position_of_arduino=Y;   //need to be updated from the database
+		var map = 
+       	[[0, 0, 0, 1,0,1,0,1,0,0,0], // Row 1
+		 [0, 0, 0, 0,0,0,0,0,0,0,0],
+	     [0, 0, 0, 0,0,0,0,0,0,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0],
+		 [0, 0, 1, 1,0,0,0,1,1,0,0],
+		 [0, 0, 1, 1,0,0,0,1,1,0,0],
+		 [0, 0, 1, 1,0,0,0,1,1,0,0],
+		 [0, 0, 1, 1,0,0,0,1,1,0,0],
+		 [0, 0, 0, 0,0,0,0,0,0,0,0],
+		 [0, 0, 0, 0,0,0,0,0,0,0,0], // Row 1
+		 [0, 0, 0, 0,0,0,0,0,0,0,0],
+		 [0, 0, 1, 1,1,1,1,1,1,0,0]];
+ 
+    
+    // The next part grabs the canvas element id of 'main' within our page <body>.
+    var ctx = document.getElementById('main').getContext('2d');
+    
+    // Using two for loops we run through each of the array rows stored and their element values.
+    for (var i = 0; i < map.length; i++) {
+        for (var j = 0; j < map[i].length; j++) {
+    
+            // Check if the value is a 1, represeting a graphic should be drawn.
+            if (map[i][j] === 0) {
+                // Draw a rectangle at i & j position * 20 pixels so that
+                // our 20x20 pixel squares are correctly positioned.
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(j * 15, i * 15, 15, 15);
+            }else {
+				ctx.fillStyle = '#FFFFFF';
+				ctx.fillRect(j * 15, i * 15, 15, 15);
+			}
+    
+        }
+    }
+	ctx.fillStyle = '#FF000F';
+	ctx.fillRect(Math.abs(y_Position_of_arduino) * 25, Math.abs(32-x_Position_of_arduino) * 25, 25, 25);   
+	
+	});
+	</script>
+<script type="text/javascript" src="./dist/nipplejs.min.js"></script>
+<script type="text/javascript">
+	//var i2c = require('i2c');
+	//var device1 = new i2c(0x18, {device: '/dev/i2c-1', debug: false});
+	//device1.setAddress(0x4);
+   var manager = nipplejs.create({
+     zone: document.getElementById('remote'),
+        mode: 'static',
+        position: {left: '50%', top: '50%'},
+        color: 'black',
+		size: 250,
+    });
+	manager.on('dir:up', function (evt, nipple) {
+	console.log("##############");
+	device1.writeByte(0x4d, function(err) { console.log("middle"); console.log(err); });
+	console.log(" align the wheels to middle");
+	device1.writeByte(0x46, function(err) { console.log("forward"); console.log(err); });
+	console.log("go straight");
+    
+	}).on('dir:down', function (evt, nipple) {
+	console.log("##############");
+	console.log("if forward stop the car");
+	device1.writeByte(0x4d, function(err) { console.log("middle"); console.log(err); });
+	console.log("align the wheels");
+	device1.writeByte(0x42, function(err) { console.log("backward"); console.log(err); });
+	console.log("go backward");
+	}).on('dir:right', function (evt, nipple) {
+	console.log("##############");
+    console.log("go right");
+	device1.writeByte(0x52, function(err) { console.log("right"); console.log(err); });
+	}).on('dir:left', function (evt, nipple) {
+	console.log("##############");
+	device1.writeByte(0x4c, function(err) { console.log("left"); console.log(err); });
+    console.log("go left");
+	});
+	
+	function manual() {
+	console.log("##############");
+	device1.writeByte(0x4e, function(err) { console.log("manual"); console.log(err); });
+    console.log("manual");
+}	
+	function auto() {
+	console.log("##############");
+	device1.writeByte(0x41, function(err) { console.log("auto"); console.log(err); });
+    console.log("auto");
+}
+
+	function stop() {
+	console.log("##############");
+	device1.writeByte(0x53, function(err) { console.log("stop"); console.log(err); });
+    console.log("stop");
+}
+</script>
+</body>
+</html>

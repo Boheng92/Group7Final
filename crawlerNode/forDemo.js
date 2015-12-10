@@ -9,7 +9,6 @@ var sampleDelay = 3000;
 var portName = process.argv[2];
 var sp;
 var path = require('path');
-
 //for MonogoDB
 var MongoClient;
 var url;
@@ -17,17 +16,78 @@ var mongo = require('mongodb');
 MongoClient = require('mongodb').MongoClient, assert = require('assert');
 url = 'mongodb://localhost:27017/ch6Node';
 
+var i2c = require('i2c');
+var device1 = new i2c(0x18, {device: '/dev/i2c-1', debug: false});
+device1.setAddress(0x4);
+
+
+
 
 io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('disconnect', function(){
   }); 
   
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
-    sp.write(msg + "\n");
+  socket.on('forward', function(msg){
+
+    console.log('forward');
+
+    device1.writeByte(0x46, function(err) {console.log("werror"); console.log(err);});
+        
+  });
+  socket.on('backward', function(msg){
+
+    console.log('backward');
+
+    device1.writeByte(0x42, function(err) {console.log("werror"); console.log(err);});
+    
+    
+  });
+  socket.on('right', function(msg){
+
+    console.log('right');
+
+    device1.writeByte(0x52, function(err) {console.log("werror"); console.log(err);});
+        
+  });
+  socket.on('left', function(msg){
+
+    console.log('left');
+
+    device1.writeByte(0x4C, function(err) {console.log("werror"); console.log(err);});
+    
+    
+  });
+  socket.on('middle', function(msg){
+
+    console.log('middle');
+
+    device1.writeByte(0x4D, function(err) {console.log("werror"); console.log(err);});
+
+  });
+  socket.on('auto', function(msg){
+
+    console.log('auto');
+
+    device1.writeByte(0x41, function(err) {console.log("werror"); console.log(err);});
+    
+  });
+  socket.on('manual', function(msg){
+
+    console.log('manual');
+
+    device1.writeByte(0x4E, function(err) {console.log("werror"); console.log(err);});
+    
+  });
+   socket.on('stop', function(msg){
+
+    console.log('stop');
+
+    device1.writeByte(0x53, function(err) {console.log("werror"); console.log(err);});
+    
   });
 });
+
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
@@ -39,8 +99,8 @@ app.set('view engine', 'ejs');
 
 
 var routes = require('./routes/index');
-app.use('/', routes);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', routes);app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(__dirname + '/public'));
 
 
 
@@ -105,7 +165,8 @@ XBeeAPI.on("frame_object", function(frame) {
 	
 	if( ( update[0] == 1 ) && ( update[1] == 1) && ( update[2] == 1) && ( update[3] == 1) ){
 		
-		for(int i = 0; i < 4; i++){
+		var i;
+		for( i = 0; i < 4; i++){
 			update[i] = 0;
 		}
 		MongoClient.connect(url, function(err, db) {
@@ -149,7 +210,11 @@ XBeeAPI.on("frame_object", function(frame) {
 					}
 				}
 				else
-				{
+				{	
+					if( parseInt(res_X) == 9 && parseInt(res_Y) < 20 && parseInt(res_Y) > 13)
+					{
+						device1.writeByte(0x58, function(err) { console.log("werror"); console.log(err); });
+					}
 					if(parseInt(res_X) < 10){
 						res_X = '0' + res_X;
 					}
